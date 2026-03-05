@@ -127,7 +127,7 @@ If you prefer to run the editor directly from the Python script (`merge_aircraft
      - Use **Merge**, **Replace**, and **Delete** as described above.
 
 
-### Misc
+
 
 This was vibe‑coded with Cursor Pro.
 
