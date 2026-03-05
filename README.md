@@ -13,14 +13,22 @@ If you're not me, or BelkanLoyalist, you may or may not need this.
 - **Delete**: Delete entire add-ons, in-case it becomes outdated / unsupported for whatever reason.
 
 
+
 ### Instructions:
 
 1. Download the executable into an empty folder.
 2. Create two folders alongside the executable; a **_SourceData_** and a **_TargetData_**. Inside the **_TargetData_**, make a subfolder, **_ASS_**.
 - Inside **_SourceData_**, you will put JSONs from the source add-on, where you'll be copying the data from, to merge, or replace the **_TargetData_** JSONs
 - Inside **_TargetData_**, you will put JSONs from the target add-on (E.g. Compat. Patch), where you'll be copying, replace, or delete data into, originating from the **_SourceData_** JSONs
+- **NOTE**: The code was made based off JSONs from UAssetAPI / UAssetGUI 1.0.2.0. Support for older versions aren't guaranteed.
 3. Use the tool.
 
+
+<br>
+
+This was vibe-coded with Cursor Pro.
+
+<br>
 
 ### Screenshots:
 
