@@ -31,7 +31,6 @@ The editor works on JSON exports of UE DataTables (from UAssetAPI / UAssetGUI 1.
     - `ASS/SkinDataTable.json`
     - `AircraftViewerDataTable.json`  
   - Useful when an add‑on becomes outdated or unsupported.
-  - Useful when an add‑on becomes outdated or unsupported.
 
 - **Localization (optional)**  
   - If **both** `SourceData/Localization` and `TargetData/Localization` exist, the tool also processes:
