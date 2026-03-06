@@ -109,57 +109,83 @@ All plane‑data operations work at the JSON level; you still use UAssetAPI/UAss
 > Older/other versions may export slightly different JSON; support for those isn’t guaranteed.
 
 
-### Running from source instead of the EXE
+### Building from source
 
-If you prefer to run the editor directly from the Python script (`merge_aircraft_data_gui.py`) instead of using the compiled `.exe`:
+If you’d like to compile the tools and GUI yourself instead of using the prebuilt release:
 
-1. **Install Python 3.x**  
-   - Make sure Python is installed and added to your PATH.  
-   - On Windows, you should be able to run `python --version` or `py --version` in a terminal.
+1. **Clone the repository (with submodules)**  
+   This pulls in your code plus GreenTrafficLight’s `Ace7Ed` and its nested submodules (including `Ace7-Localization-Format` and `CUE4Parse`):
 
-2. **Install any dependencies**  
-   - The GUI uses only the Python standard library (`tkinter`, `json`, etc.), so there are **no extra pip packages** required.
-   - On Windows, `tkinter` is usually included with the standard Python installer.
+   ```bash
+   git clone --recurse-submodules --remote-submodules https://github.com/sincerity21/acecombat7_addon_merging.git
+   cd acecombat7_addon_merging
+   ```
 
-3. **Set up the folder structure**  
-   - Same as for the EXE:
+   If you already cloned without submodules:
 
-     ```text
-     <root>/
-       merge_aircraft_data_gui.py
-       SourceData/
-         PlayerPlaneDataTable.json
-         SkinDataTable.json
-         AircraftViewerDataTable.json
-       TargetData/
-         PlayerPlaneDataTable.json
-         SkinDataTable.json
-         AircraftViewerDataTable.json
-         ASS/
-           SkinDataTable.json
+   ```bash
+   git submodule update --init --recursive
+   ```
+
+2. **Build the C# localization tools**  
+   You need the localization DLLs/CLI built once before using localization merge/replace.
+
+   - Using the `Ace7Ed` solution (recommended, matches GreenTrafficLight’s layout):
+
+     ```bash
+     cd Ace7Ed
+     dotnet build -c Release
+     cd ..
      ```
 
-4. **Run the GUI**
+   - Or, if you prefer to build only the standalone CLI project used by this editor:
 
-   From a terminal in `<root>`:
+     ```bash
+     cd Ace7-Localization-Format/Ace7LocalizationMerge
+     dotnet build -c Release
+     cd ../..
+     ```
 
-   ```powershell
-   cd "<root>"
-   python merge_aircraft_data_gui.py
+   After this, the Release `bin` folders will contain the `.dll`/`.exe` files the Python GUI expects.
+
+3. **Set up Python and dependencies**
+
+   - Install Python 3.x and ensure it’s on your PATH (`python --version` or `py --version` should work).
+   - Install **PyInstaller** to build the GUI executable:
+
+     ```bash
+     py -m pip install pyinstaller
+     ```
+
+4. **Build the GUI executable**
+
+   From the repo root:
+
+   ```bash
+   cd "(MERGING)"
+   py -m PyInstaller Ace7DataTableEditor.spec
    ```
 
-   or, if your system uses the launcher:
+   This produces:
 
-   ```powershell
-   py merge_aircraft_data_gui.py
+   ```text
+   (MERGING)/dist/Ace7DataTableEditor.exe
    ```
 
-5. **Use it exactly like the EXE**  
-   - The GUI behavior and features are identical:
-     - Use the **Root folder** Browse button to choose the folder that contains `SourceData` and `TargetData`.
-     - Use **Merge**, **Replace**, and **Delete** as described above.
-   - **Localization from source**:
-     - Works the same way as in the EXE, but requires the C# localization tools (`Ace7-Localization-Format` and the `Ace7LocalizationMerge` CLI) to be present and built in the repository root, just like in the release bundle.
+   which is the same style of executable shipped in the release.
+
+5. **Run directly from Python (optional)**  
+   If you don’t care about a standalone `.exe`, you can run the GUI directly from the Python script instead:
+
+   - Set up the folder structure exactly as in the **Setup** section above (with `SourceData`, `TargetData`, and optional `Localization`).
+   - Then, from the repo root:
+
+     ```powershell
+     cd "(MERGING)"
+     py merge_aircraft_data_gui.py
+     ```
+
+   - All features (Merge / Replace / Delete / Localization) behave exactly like in the built exe, as long as the C# localization tools you built in step 2 are present in the expected locations.
 
 
 ### Credits & third‑party code
