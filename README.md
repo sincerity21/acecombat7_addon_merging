@@ -159,17 +159,16 @@ If you’d like to compile the tools and GUI yourself instead of using the prebu
 
 4. **Build the GUI executable**
 
-   From the repo root:
+   From the repo root (where `Ace7DataTableEditor.spec` lives):
 
    ```bash
-   cd "(MERGING)"
    py -m PyInstaller Ace7DataTableEditor.spec
    ```
 
    This produces:
 
    ```text
-   (MERGING)/dist/Ace7DataTableEditor.exe
+   dist/Ace7DataTableEditor.exe
    ```
 
    which is the same style of executable shipped in the release.
@@ -181,7 +180,6 @@ If you’d like to compile the tools and GUI yourself instead of using the prebu
    - Then, from the repo root:
 
      ```powershell
-     cd "(MERGING)"
      py merge_aircraft_data_gui.py
      ```
 
