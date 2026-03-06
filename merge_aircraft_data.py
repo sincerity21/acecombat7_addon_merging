@@ -3,6 +3,8 @@ import os
 import copy
 import re
 import shutil
+import subprocess
+import sys
 
 # Keep track of files we've backed up this session so we don't overwrite the original backup
 BACKED_UP_FILES = set()
@@ -376,6 +378,85 @@ def process_replace_player_plane_data(plane_id, old_rows, target_filename):
     print(f" -> Notice: '{plane_id}' not found in {target_filename}. Cannot replace.")
 
 
+# ----------------- LOCALIZATION CLI ----------------- #
+
+def _get_localization_cli_paths():
+    """Return (exe_path or None, project_dir or None) for the Ace7LocalizationMerge CLI."""
+    if getattr(sys, "frozen", False):
+        # Running from a PyInstaller-built executable.
+        # In the release layout, the exe sits next to Ace7-Localization-Format.
+        script_dir = os.path.dirname(sys.executable)
+        repo_root = script_dir
+    else:
+        # Running from source (python merge_aircraft_data_gui.py in (MERGING)).
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        repo_root = os.path.dirname(script_dir)
+
+    merge_root = os.path.join(repo_root, "Ace7-Localization-Format", "Ace7LocalizationMerge")
+    for config in ("Release", "Debug"):
+        exe = os.path.join(merge_root, "bin", config, "net6.0", "Ace7LocalizationMerge.exe")
+        if os.path.isfile(exe):
+            return exe, None
+    csproj = os.path.join(merge_root, "Ace7LocalizationMerge.csproj")
+    if os.path.isfile(csproj):
+        return None, merge_root
+    return None, None
+
+
+def _run_localization_cli(mode, source_dir, target_dir):
+    """Run localization merge or replace. mode is 'merge' or 'replace'."""
+    source_local = os.path.join(source_dir, "Localization")
+    target_local = os.path.join(target_dir, "Localization")
+    if not os.path.isdir(source_local) or not os.path.isdir(target_local):
+        return
+    exe_path, project_dir = _get_localization_cli_paths()
+    if exe_path:
+        cmd = [exe_path, mode, source_local, target_local]
+        try:
+            result = subprocess.run(
+                cmd,
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            if result.stdout:
+                print(result.stdout, end="")
+            print(f"[Localization] CLI exited with code {result.returncode}.")
+        except Exception as e:
+            print(f" -> Localization CLI error: {e}")
+        return
+    if project_dir:
+        cmd = ["dotnet", "run", "--project", project_dir, "--", mode, source_local, target_local]
+        try:
+            result = subprocess.run(
+                cmd,
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+            )
+            if result.stdout:
+                print(result.stdout, end="")
+            print(f"[Localization] CLI (dotnet run) exited with code {result.returncode}.")
+        except Exception as e:
+            print(f" -> Localization CLI (dotnet run) error: {e}")
+        return
+    print(" -> Localization: Ace7LocalizationMerge CLI not found (build Ace7-Localization-Format solution).")
+
+
+def run_localization_merge(source_dir, target_dir):
+    """Merge localization from SourceData/Localization into TargetData/Localization."""
+    print("\n--- Localization (Merge) ---")
+    _run_localization_cli("merge", source_dir, target_dir)
+
+
+def run_localization_replace(source_dir, target_dir):
+    """Replace localization: add new strings, overwrite empty target with source, log conflicts."""
+    print("\n--- Localization (Replace) ---")
+    _run_localization_cli("replace", source_dir, target_dir)
+
+
 # ----------------- MENU INTERFACES ----------------- #
 
 def scan_files_for_planes(file_dict):
@@ -536,6 +617,7 @@ def merge_planes_by_ids(source_dir, target_dir, plane_ids, alpha_sorts,
                 process_player_plane_data(plane_id, old_data_cache[src_player], target, current_alpha)
 
     print("\nMerge Complete!")
+    run_localization_merge(source_dir, target_dir)
 
 def do_replace(source_dir, target_dir):
     """
@@ -645,6 +727,7 @@ def replace_planes_by_ids(source_dir, target_dir, plane_ids, files_to_process=No
                 process_replace_player_plane_data(plane_id, old_data_cache[src_player], target)
 
     print("\nReplace Complete!")
+    run_localization_replace(source_dir, target_dir)
 
 def do_delete(target_dir):
     """
