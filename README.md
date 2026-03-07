@@ -187,6 +187,8 @@ If you’d like to compile the tools and GUI yourself instead of using the prebu
 
 ### Credits & third‑party code
 
+Third‑party components and their licenses are described in **[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)**.
+
 - **CUE4Parse**  
   - Unreal Engine archive / package parsing library by FabianFG and contributors.  
   - Repository: [FabianFG/CUE4Parse](https://github.com/FabianFG/CUE4Parse/)  
